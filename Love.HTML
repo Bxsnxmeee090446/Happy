@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Happy Birthday</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Arial', sans-serif;
+      background: #ffe6f0;
+      overflow: hidden;
+    }
+
+    #intro {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: linear-gradient(135deg, #ffccff, #ffe6f0);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+    }
+
+    #intro h1 {
+      font-size: 36px;
+      color: #d10050;
+      margin-bottom: 30px;
+      text-shadow: 2px 2px 8px rgba(255, 0, 128, 0.4);
+      text-align: center;
+    }
+
+    .start-button {
+      padding: 25px 50px;
+      font-size: 28px;
+      font-weight: bold;
+      color: white;
+      background-color: #ff4da6;
+      border: none;
+      border-radius: 15px;
+      cursor: pointer;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .start-button:hover {
+      background-color: #e60073;
+      transform: scale(1.05);
+    }
+
+    .heart-container {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      z-index: 5;
+    }
+
+    .heart {
+      position: relative;
+      width: 300px;
+      height: 300px;
+      background: red;
+      transform: rotate(-45deg);
+    }
+
+    .heart::before,
+    .heart::after {
+      content: "";
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      background: red;
+      border-radius: 50%;
+    }
+
+    .heart::before {
+      top: -150px;
+      left: 0;
+    }
+
+    .heart::after {
+      top: 0;
+      left: 150px;
+    }
+
+    .typewriter {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%); /* เอา rotate ออกแล้ว */
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
+      width: 220px;
+      line-height: 1.5;
+      animation: fadeIn 1s ease forwards;
+      pointer-events: none;
+      white-space: pre-line; /* ให้ขึ้นบรรทัดตาม \n */
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .scroll-text {
+      white-space: nowrap;
+      width: 100%;
+      position: absolute;
+      bottom: 30px;
+      text-align: center;
+      display: none;
+      overflow: visible; /* ป้องกันข้อความถูกตัด */
+    }
+
+    .scroll-text span {
+      display: inline-block;
+      animation: scrollText 10s linear infinite;
+      font-size: 48px;
+      color: #d10050;
+      font-weight: bold;
+      text-shadow: 2px 2px 8px rgba(255, 0, 128, 0.6);
+      /* ให้แกนแปลงจุดศูนย์กลางตรงกลางข้อความ */
+      transform-origin: center center;
+      position: relative;
+      left: 50%; /* เริ่มกลางหน้าจอ */
+      /* เมื่อหยุด วิ่งจะหยุดที่ตำแหน่งตรงกลาง */
+      /* เราจะจัดการผ่าน JS */
+    }
+
+    @keyframes scrollText {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+
+    #musicContainer {
+      position: absolute;
+      width: 0;
+      height: 0;
+      opacity: 0;
+    }
+  </style>
+
+  <!-- โหลด YouTube API -->
+  <script src="https://www.youtube.com/iframe_api"></script>
+</head>
+<body>
+
+  <!-- หน้าเริ่มต้น -->
+  <div id="intro">
+    <h1>ลองกดดูสิ 💖</h1>
+    <button class="start-button" onclick="startAll()">▶️ เปิดเพลง</button>
+  </div>
+
+  <!-- หัวใจและข้อความ -->
+  <div class="heart-container" id="heartContainer">
+    <div class="heart"></div>
+    <div class="typewriter" id="typewriter-text"></div>
+  </div>
+
+  <!-- ข้อความวิ่ง -->
+  <div class="scroll-text" id="scrollText">
+    <span id="scrollTextSpan">🎉 Happy Birthday My Love 💖</span>
+  </div>
+
+  <!-- เพลงจาก YouTube -->
+  <div id="musicContainer">
+    <div id="player"></div>
+  </div>
+
+  <script>
+    const message = `ปีนี้ก็ 22 ขวบ แล้วนะค้าบ
+ขอให้ที่รักสุขภาพแข็งแรง
+คิดอะไรได้แบบนั้น
+และขอให้อยู่กับเค้าแบบนี้ไปนานๆนะค้าบ`;
+    const target = document.getElementById("typewriter-text");
+    let index = 0;
+
+    function typeWriter() {
+      if (index < message.length) {
+        target.innerHTML += message[index] === "\n" ? "<br>" : message[index];
+        index++;
+        setTimeout(typeWriter, 60);
+      }
+    }
+
+    function startAll() {
+      document.getElementById("intro").style.display = "none";
+      document.getElementById("heartContainer").style.display = "flex";
+      document.getElementById("scrollText").style.display = "block";
+      typeWriter();
+
+      if(player && typeof player.playVideo === 'function') {
+        player.playVideo(); // เล่นเพลงเมื่อกดปุ่ม
+      }
+    }
+
+    // ข้อความวิ่งหยุดหลัง 3 รอบและอยู่ตรงกลางระนาบเดียวกับตอนวิ่ง
+    let count = 0;
+    const scrollTextSpan = document.getElementById("scrollTextSpan");
+
+    scrollTextSpan.addEventListener("animationiteration", () => {
+      count++;
+      if (count === 3) {
+        // หยุด animation
+        scrollTextSpan.style.animationPlayState = "paused";
+        // ปรับตำแหน่งให้อยู่ตรงกลางพอดี
+        scrollTextSpan.style.position = "absolute";
+        scrollTextSpan.style.left = "50%";
+        scrollTextSpan.style.transform = "translateX(-50%)";
+      }
+    });
+
+    // YouTube Player
+    let player;
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('player', {
+        height: '0',
+        width: '0',
+        videoId: 'THHXBY75aqw',
+        playerVars: {
+          autoplay: 0, // ไม่เล่นอัตโนมัติ รอเปิดเอง
+          controls: 0,
+          modestbranding: 1,
+          rel: 0
+        },
+        events: {
+          'onReady': onPlayerReady,
+          'onStateChange': onPlayerStateChange
+        }
+      });
+    }
+
+    function onPlayerReady(event) {
+      // ไม่เล่นอัตโนมัติ ให้รอเปิดเอง
+    }
+
+    function onPlayerStateChange(event) {
+      if (event.data === YT.PlayerState.ENDED) {
+        document.getElementById("heartContainer").style.transition = "opacity 2s ease";
+        document.getElementById("scrollText").style.transition = "opacity 2s ease";
+        document.getElementById("heartContainer").style.opacity = "0";
+        document.getElementById("scrollText").style.opacity = "0";
+
+        setTimeout(() => {
+          document.getElementById("heartContainer").style.display = "none";
+          document.getElementById("scrollText").style.display = "none";
+          showRedirectButton();
+        }, 2500);
+      }
+    }
+
+    function showRedirectButton() {
+      const btn = document.createElement("button");
+      btn.textContent = "🎁 คลิกเพื่อรับของขวัญ 🎁";
+      btn.style.position = "fixed";
+      btn.style.top = "50%";
+      btn.style.left = "50%";
+      btn.style.transform = "translate(-50%, -50%)";
+      btn.style.padding = "30px 60px";
+      btn.style.fontSize = "32px";
+      btn.style.background = "#ff3399";
+      btn.style.color = "white";
+      btn.style.border = "none";
+      btn.style.borderRadius = "20px";
+      btn.style.cursor = "pointer";
+      btn.style.boxShadow = "0 10px 30px rgba(0,0,0,0.3)";
+      btn.style.zIndex = "9999";
+      btn.style.opacity = "0";
+      btn.style.transition = "opacity 1.5s ease";
+
+      document.body.appendChild(btn);
+
+      setTimeout(() => {
+        btn.style.opacity = "1";
+      }, 100);
+
+      btn.addEventListener("click", () => {
+        window.location.href = "https://drive.google.com/file/d/1KiFhSTxYIRtC5iN-6LRC8MqMNE_8lvZJ/view?usp=sharing";
+      });
+    }
+  </script>
+
+</body>
+</html>
